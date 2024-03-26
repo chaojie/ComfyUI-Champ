@@ -319,6 +319,7 @@ class ChampRun:
                 "video_length": ("INT",{"default":16}),
                 "num_inference_steps": ("INT",{"default":20}),
                 "guidance_scale": ("FLOAT",{"default":3.5}),
+                "seed": ("INT",{"default":1234}),
             },
         }
 
@@ -326,7 +327,7 @@ class ChampRun:
     FUNCTION = "run"
     CATEGORY = "Champ"
 
-    def run(self,model,cfg,vae,image_enc,noise_scheduler,image,depth_images,normal_images,semantic_map_images,dwpose_images,width,height,video_length,num_inference_steps,guidance_scale):
+    def run(self,model,cfg,vae,image_enc,noise_scheduler,image,depth_images,normal_images,semantic_map_images,dwpose_images,width,height,video_length,num_inference_steps,guidance_scale,seed):
         ref_image = 255.0 * image[0].cpu().numpy()
         ref_image_pil = Image.fromarray(np.clip(ref_image, 0, 255).astype(np.uint8))
         ref_image_w, ref_image_h = ref_image_pil.size
@@ -341,6 +342,7 @@ class ChampRun:
         OmegaConf.update(cfg, "height", height)
         OmegaConf.update(cfg, "num_inference_steps", num_inference_steps)
         OmegaConf.update(cfg, "guidance_scale", guidance_scale)
+        OmegaConf.update(cfg, "seed", seed)
         
         if cfg.weight_dtype == "fp16":
             weight_dtype = torch.float16
