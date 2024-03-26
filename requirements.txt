@@ -1,0 +1,12 @@
+accelerate
+diffusers==0.24.0
+einops
+imageio
+imageio[ffmpeg]
+numpy
+omegaconf
+Pillow
+safetensors
+tqdm
+transformers==4.30.2
+xformers
