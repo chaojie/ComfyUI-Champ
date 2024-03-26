@@ -8,15 +8,7 @@ ComfyUI-Champ
     - [image_encoder](https://huggingface.co/lambdalabs/sd-image-variations-diffusers/tree/main/image_encoder)
 
 2. Download champ checkpoints:
-
-|-- champ
-|   |-- denoising_unet.pth
-|   |-- guidance_encoder_depth.pth
-|   |-- guidance_encoder_dwpose.pth
-|   |-- guidance_encoder_normal.pth
-|   |-- guidance_encoder_semantic_map.pth
-|   |-- reference_unet.pth
-|   `-- motion_module.pth
+[checkpoints](https://drive.google.com/drive/folders/1hZiOHG-qDf0Pj7tvfxC70JQ6wHUvUDoY?usp=sharing)
 
 Set the path at ChampLoader node
 
