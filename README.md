@@ -23,3 +23,5 @@ https://github.com/chaojie/ComfyUI-Champ/blob/main/wf.json
 ## champ
 
 [champ](https://github.com/fudan-generative-vision/champ)
+
+如果安装其他node更新了diffusers版本，需要pip install diffusers==0.24.0再安装回来
