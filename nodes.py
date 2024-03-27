@@ -27,6 +27,7 @@ from .models.champ_model import ChampModel
 from .pipelines.pipeline_aggregation import MultiGuidance2LongVideoPipeline
 
 from .utils.video_utils import resize_tensor_frames, save_videos_grid, pil_list_to_tensor, get_images
+import json
 
 
 def setup_savedir(cfg):
@@ -173,6 +174,8 @@ class ChampLoader:
         OmegaConf.update(cfg, "image_encoder_path", image_encoder_path)
         OmegaConf.update(cfg, "motion_module_path", motion_module_path)
         OmegaConf.update(cfg, "weight_dtype", weight_dtype)
+        #guidance_types=json.loads(guidance_types)
+        #OmegaConf.update(cfg, "guidance_types", guidance_types)
         
         if cfg.weight_dtype == "fp16":
             weight_dtype = torch.float16
@@ -331,18 +334,22 @@ class ChampRun:
         ref_image = 255.0 * image[0].cpu().numpy()
         ref_image_pil = Image.fromarray(np.clip(ref_image, 0, 255).astype(np.uint8))
         ref_image_w, ref_image_h = ref_image_pil.size
-        
-        guidance_pil_group=dict()
-        guidance_pil_group["depth"]=[Image.fromarray(np.clip(255.0*img.cpu().numpy(), 0, 255).astype(np.uint8)) for img in depth_images]
-        guidance_pil_group["normal"]=[Image.fromarray(np.clip(255.0*img.cpu().numpy(), 0, 255).astype(np.uint8)) for img in normal_images]
-        guidance_pil_group["semantic_map"]=[Image.fromarray(np.clip(255.0*img.cpu().numpy(), 0, 255).astype(np.uint8)) for img in semantic_map_images]
-        guidance_pil_group["dwpose"]=[Image.fromarray(np.clip(255.0*img.cpu().numpy(), 0, 255).astype(np.uint8)) for img in dwpose_images]
 
         OmegaConf.update(cfg, "width", width)
         OmegaConf.update(cfg, "height", height)
         OmegaConf.update(cfg, "num_inference_steps", num_inference_steps)
         OmegaConf.update(cfg, "guidance_scale", guidance_scale)
         OmegaConf.update(cfg, "seed", seed)
+        
+        guidance_pil_group=dict()
+        if "depth" in cfg.guidance_types:
+            guidance_pil_group["depth"]=[Image.fromarray(np.clip(255.0*img.cpu().numpy(), 0, 255).astype(np.uint8)) for img in depth_images]
+        if "normal" in cfg.guidance_types:
+            guidance_pil_group["normal"]=[Image.fromarray(np.clip(255.0*img.cpu().numpy(), 0, 255).astype(np.uint8)) for img in normal_images]
+        if "semantic_map" in cfg.guidance_types:
+            guidance_pil_group["semantic_map"]=[Image.fromarray(np.clip(255.0*img.cpu().numpy(), 0, 255).astype(np.uint8)) for img in semantic_map_images]
+        if "dwpose" in cfg.guidance_types:
+            guidance_pil_group["dwpose"]=[Image.fromarray(np.clip(255.0*img.cpu().numpy(), 0, 255).astype(np.uint8)) for img in dwpose_images]
         
         if cfg.weight_dtype == "fp16":
             weight_dtype = torch.float16
@@ -371,8 +378,78 @@ class ChampRun:
         result_video_tensor = resize_tensor_frames(result_video_tensor, (ref_image_h, ref_image_w))
         
         return get_images(result_video_tensor)
+
+class ImageCombineOneRow:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {
+            "image1": ("IMAGE",),
+            "image2": ("IMAGE",),  
+        },
+        "optional":{
+            "image3": ("IMAGE",),
+            "image4": ("IMAGE",),
+            "image5": ("IMAGE",),
+            "image6": ("IMAGE",),
+            "image7": ("IMAGE",),
+            "image8": ("IMAGE",),
+            "image9": ("IMAGE",),
+            "image10": ("IMAGE",),
+            "image11": ("IMAGE",),
+            "image12": ("IMAGE",),
+        }}
+
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "run"
+    CATEGORY = "Champ"
+
+    def run(self, image1, image2, image3=None, image4=None, image5=None, image6=None, image7=None, image8=None, image9=None, image10=None, image11=None, image12=None):
+        imgs=(image1,image2)
+        for img in (image3,image4,image5,image6,image7,image8,image9,image10,image11,image12):
+            if img is None:
+                break
+            else:
+                imgs=imgs+(img,)
+        row = torch.cat(imgs, dim=2)
+        return (row,)
+
+class ImageCombineOneColumn:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {
+            "image1": ("IMAGE",),
+            "image2": ("IMAGE",),  
+        },
+        "optional":{
+            "image3": ("IMAGE",),
+            "image4": ("IMAGE",),
+            "image5": ("IMAGE",),
+            "image6": ("IMAGE",),
+            "image7": ("IMAGE",),
+            "image8": ("IMAGE",),
+            "image9": ("IMAGE",),
+            "image10": ("IMAGE",),
+            "image11": ("IMAGE",),
+            "image12": ("IMAGE",),
+        }}
+
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "run"
+    CATEGORY = "Champ"
+
+    def run(self, image1, image2, image3=None, image4=None, image5=None, image6=None, image7=None, image8=None, image9=None, image10=None, image11=None, image12=None):
+        imgs=(image1,image2)
+        for img in (image3,image4,image5,image6,image7,image8,image9,image10,image11,image12):
+            if img is None:
+                break
+            else:
+                imgs=imgs+(img,)
+        col = torch.cat(imgs, dim=1)
+        return (col,)
     
 NODE_CLASS_MAPPINGS = {
     "ChampLoader":ChampLoader,
     "ChampRun":ChampRun,
+    "ImageCombineOneRow":ImageCombineOneRow,
+    "ImageCombineOneColumn":ImageCombineOneColumn,
 }
