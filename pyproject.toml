@@ -1,0 +1,15 @@
+[project]
+name = "comfyui-champ"
+description = "ComfyUI Champ"
+version = "1.0.0"
+license = "LICENSE"
+dependencies = ["accelerate", "diffusers>=0.26.3", "einops", "imageio", "imageio[ffmpeg]", "numpy", "omegaconf", "Pillow", "safetensors", "tqdm", "transformers==4.30.2", "xformers"]
+
+[project.urls]
+Repository = "https://github.com/chaojie/ComfyUI-Champ"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "ComfyUI-Champ"
+Icon = ""
